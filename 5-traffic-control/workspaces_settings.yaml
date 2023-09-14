@@ -1,0 +1,35 @@
+# We are turning off the service isolation because of bug discovered in the Gloo Mesh Ambient Aplha features, this will be fixed soon
+
+---
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: bookinfo
+  namespace: bookinfo
+spec:
+  exportTo: []
+  options:
+    serviceIsolation:
+      enabled: false
+  exportTo:  
+  - workspaces:
+    - name: "client"
+    resources:
+    - kind: SERVICE  
+      name: productpage
+
+---      
+
+apiVersion: admin.gloo.solo.io/v2
+kind: WorkspaceSettings
+metadata:
+  name: client
+  namespace: client
+spec:
+  exportTo: []
+  options:
+    serviceIsolation:
+      enabled: false
+  importFrom:
+  - workspaces:
+    - name: bookinfo      

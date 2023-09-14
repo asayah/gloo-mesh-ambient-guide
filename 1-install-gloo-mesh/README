@@ -1,0 +1,13 @@
+In this step we will install Gloo Mesh, run the following script: 
+
+```bash
+./run.sh 
+```
+
+two helm charts will be installed. 
+
+After couple seconds you will be able to connect to the UI:
+
+```
+kubectl port-forward -n gloo-mesh svc/gloo-mesh-ui 8090
+```

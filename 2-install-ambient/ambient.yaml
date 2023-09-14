@@ -1,0 +1,22 @@
+apiVersion: admin.gloo.solo.io/v2
+kind: IstioLifecycleManager
+metadata:
+  name: istiod-control-plane
+  namespace: gloo-mesh
+spec:
+  installations:
+  - clusters:
+    - name: demo
+      defaultRevision: false
+    istioOperatorSpec:
+      profile: ambient
+      hub: <ISTIO_HUB>
+      tag: <ISTIO_TAG>
+      namespace: istio-system
+      meshConfig:
+        accessLogFile: /dev/stdout
+        rootNamespace: istio-system
+      values:
+        ztunnel:
+          env:
+            ZERO_COPY_DISABLED: true

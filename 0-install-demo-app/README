@@ -1,0 +1,8 @@
+In this first step we will just install some demo applications to test with. 
+Run the script run.sh 
+
+```
+./run.sh 
+```
+
+it will install 2 apps, one called sleep in the namespace client, and the bookinfo example in the bookinfo namespace 

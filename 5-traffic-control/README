@@ -1,0 +1,34 @@
+in the following example we will see how to control the traffic between services, in the current example we have reviews v1,v2,v3 
+v3 return a message saying `"color": "red"` the traffic is load balanced equally between the 3 versions, what we will do now is to set a policy that will route 75% to v1 (no color message) and 25% of the traffic to v2 (message `"color": "black"`)
+
+
+```
+kubectl -n client debug -i pods/$(kubectl get pod  -l app=sleep -A -o jsonpath='{.items[0].metadata.name}') --image=curlimages/curl -- curl -v http://reviews.bookinfo.svc.cluster.local:9080/reviews/1
+```
+
+red star in the message: 
+
+```
+* Connection #0 to host reviews.bookinfo.svc.cluster.local left intact
+{"id": "1","podname": "reviews-v3-c9c4fb987-8zx64","clustername": "null","reviews": [{  "reviewer": "Reviewer1",  "text": "An extremely entertaining play by Shakespeare. The slapstick humour is refreshing!", "rating": {"stars": 5, "color": "red"}},{  "reviewer": "Reviewer2",  "text": "Absolutely fun and entertaining. The play lacks thematic depth when compared to other plays by Shakespeare.", "rating": {"stars": 4, "color": "red"}}]}
+
+```
+
+
+Apply the following manifest: 
+
+```
+kubectl apply -f ./5-traffic-control 
+```
+
+After a couple seconds you should see the waypoint being created, this is because now we need L7 capabilities:
+
+```
+bookinfo       bookinfo-reviews-istio-waypoint-6d79fc675c-gsbbc   1/1     Running   0          37m
+```
+
+Now if you make the same call as earlier, we should not see any color=red in the messages and we should see color back only occasionally (25% of the time)
+
+```
+kubectl -n client debug -i pods/$(kubectl get pod  -l app=sleep -A -o jsonpath='{.items[0].metadata.name}') --image=curlimages/curl -- curl -v http://reviews.bookinfo.svc.cluster.local:9080/reviews/1
+```

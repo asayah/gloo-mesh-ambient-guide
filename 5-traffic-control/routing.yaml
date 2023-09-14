@@ -1,0 +1,37 @@
+apiVersion: networking.gloo.solo.io/v2
+kind: RouteTable
+metadata:
+  name: reviews
+  namespace: bookinfo
+spec:
+  hosts:
+    - 'reviews.bookinfo.svc.cluster.local'
+  applyToDestinations:
+  - selector:
+      labels:
+        app: reviews
+  http:
+    # Route for the reviews service
+    - name: reviews-canary
+      # Prefix matching
+      matchers:
+      - uri:
+          prefix: /reviews
+      forwardTo:
+        destinations:
+          - ref:
+              name: reviews
+              namespace: bookinfo
+            port:
+                number: 9080            
+            subset:
+              version: v1
+            weight: 75
+          - ref:
+              name: reviews
+              namespace: bookinfo
+            port:
+                number: 9080            
+            subset:
+              version: v2
+            weight: 25

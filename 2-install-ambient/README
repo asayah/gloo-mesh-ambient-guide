@@ -1,0 +1,52 @@
+It is time now to install Ambient, Please update the document and replace <ISTIO_HUB> and <ISTIO_TAG> with the values provided by the solo.io team
+
+```
+# Update the values in the ambient.yaml file first! 
+
+#Then 
+kubectl apply -f ./2-install-ambient 
+```
+
+after couple seconds Istio will be running on the cluster: 
+
+
+```
+k get po -n istio-system
+NAME                      READY   STATUS    RESTARTS   AGE
+istio-cni-node-9qr4k      2/2     Running   0          42m
+istio-cni-node-cl6vv      2/2     Running   0          42m
+istiod-5d856b659b-w68fq   1/1     Running   0          42m
+ztunnel-8rxc5             1/1     Running   0          42m
+ztunnel-wxmwk             1/1     Running   0          42m
+```
+
+
+Label the demo services namespaces so Istio can take control of the traffic:
+
+```
+kubectl label namespace client istio.io/dataplane-mode=ambient 
+kubectl label namespace bookinfo istio.io/dataplane-mode=ambient 
+```
+
+You can test now that the traffic is going through Ambient
+
+```
+# Make this call couple times 
+kubectl -n client debug -i pods/$(kubectl get pod  -l app=sleep -A -o jsonpath='{.items[0].metadata.name}') --image=curlimages/curl -- curl -v http://reviews.bookinfo.svc.cluster.local:9080/reviews/1
+```
+
+Then check the logs of the ztunnel: 
+
+```
+ logs -n istio-system ztunnel-wxmwk | grep outbound
+outbound_addr: '[::]:15001'
+2023-09-14T21:09:40.063194Z  INFO ztunnel::proxy::outbound: listener established address=[::]:15001 component="outbound" transparent=true
+2023-09-14T21:09:40.064131Z  INFO ztunnel::proxy::outbound: listener established address=[::]:15001 component="outbound" transparent=true
+2023-09-14T21:14:54.252802Z DEBUG proxy{uid=0c6d26bd-091e-4422-afdc-98ebad1dd533}:outbound{id=ea06320949d8aec09d2e77d16da2cf08}: ztunnel::state: fetch workload addr=/192.168.85.240
+2023-09-14T21:14:54.252830Z DEBUG proxy{uid=0c6d26bd-091e-4422-afdc-98ebad1dd533}:outbound{id=ea06320949d8aec09d2e77d16da2cf08}: ztunnel::state: fetch address network_addr.address=10.100.254.164
+2023-09-14T21:14:54.252944Z DEBUG proxy{uid=0c6d26bd-091e-4422-afdc-98ebad1dd533}:outbound{id=ea06320949d8aec09d2e77d16da2cf08}: ztunnel::proxy::outbound: request from reviews-v3-c9c4fb987-8b4mv to 10.100.254.164:9080 via 192.168.41.201:15008 type Direct dir Outbound
+2023-09-14T21:14:54.253053Z  INFO proxy{uid=0c6d26bd-091e-4422-afdc-98ebad1dd533}:outbound{id=ea06320949d8aec09d2e77d16da2cf08}: ztunnel::proxy::outbound: proxy to 192.168.41.201:9080 using HBONE via 192.168.41.201:15008 type Direct
+
+```
+
+We see now that the traffic is handled by Istio 
