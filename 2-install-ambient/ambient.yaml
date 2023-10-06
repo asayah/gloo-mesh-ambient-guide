@@ -10,9 +10,13 @@ spec:
       defaultRevision: false
     istioOperatorSpec:
       profile: ambient
-      hub: <ISTIO_HUB>
-      tag: <ISTIO_TAG>
+      hub: us-docker.pkg.dev/gloo-mesh/istio-bf39a24ed9df
+      tag: 1.19.0-rc.0-patch1
       namespace: istio-system
+      components:
+        cni: 
+          enabled: true
+          namespace: kube-system      
       meshConfig:
         accessLogFile: /dev/stdout
         rootNamespace: istio-system

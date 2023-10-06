@@ -2,22 +2,12 @@ common:
   cluster: demo
 glooAgent:
   enabled: true
-  image: 
-    # Dev build
-    registry: us-docker.pkg.dev/developers-369321/gloo-platform-dev
-    repository: gloo-mesh-agent
-    tag: 2.4.0-2023-09-02-birkland-v2.4.x-enablement-ilm-ac55a1d00
   relay:
     serverAddress: gloo-mesh-mgmt-server.gloo-mesh:9900
 glooMgmtServer:
   serviceType: ClusterIP
   registerCluster: true
   enabled: true
-  image: 
-    # Dev build
-    tag: 2.4.0-2023-09-02-birkland-v2.4.x-enablement-ilm-ac55a1d00
-    repository: gloo-platform-dev/gloo-mesh-mgmt-server
-    registry: us-docker.pkg.dev/developers-369321
 glooUi:
   enabled: true
 telemetryCollector:
